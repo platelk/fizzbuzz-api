@@ -26,13 +26,15 @@ type HttpService interface {
 type FizzBuzzService struct {
 	httpClient         *http.ServeMux
 	version            string
+	port               uint16
 	fizzBuzzRouteCache gcache.Cache
 }
 
 // CreateFizzBuzzService initialize a new FizzBuzzService
-func CreateFizzBuzzService() HttpService {
+func CreateFizzBuzzService(port uint16) HttpService {
 	return &FizzBuzzService{
 		version: Version,
+		port: port,
 		fizzBuzzRouteCache: gcache.
 			New(FizzBuzzRespCacheSize).
 			LRU().LoaderFunc(func(key interface{}) (interface{}, error) {
@@ -55,8 +57,8 @@ func (service *FizzBuzzService) routes() http.Handler {
 
 // Launch FizzBuzz service
 func (service *FizzBuzzService) Launch() {
-	log.Println("Service http service...")
-	http.ListenAndServe(fmt.Sprintf(":%d", 8080), applyCORS(service.routes()))
+	log.Printf("Listening on %d...\n", service.port)
+	http.ListenAndServe(fmt.Sprintf(":%d", service.port), applyCORS(service.routes()))
 }
 
 // VersionRoute is a http request handling function which return the version of the service
