@@ -2,6 +2,7 @@ package service
 
 import "net/http"
 
+// applyCORS allow request to be made through any origin
 func applyCORS(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS")

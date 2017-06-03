@@ -11,11 +11,14 @@ import (
 	"github.com/platelk/fizzbuzz-api/core"
 )
 
+// FizzBuzzRespCacheSize represent the number of response that will be cached
 const FizzBuzzRespCacheSize = 5000
+// Version is a string representation of the service version
 const Version = "0.0.1"
 
 // HttpService define basic possible interaction for all HttpService
 type HttpService interface {
+	// Launch the service
 	Launch()
 }
 
@@ -26,6 +29,7 @@ type FizzBuzzService struct {
 	fizzBuzzRouteCache gcache.Cache
 }
 
+// CreateFizzBuzzService initialize a new FizzBuzzService
 func CreateFizzBuzzService() HttpService {
 	return &FizzBuzzService{
 		version: Version,
@@ -49,11 +53,13 @@ func (service *FizzBuzzService) routes() http.Handler {
 	return service.httpClient
 }
 
+// Launch FizzBuzz service
 func (service *FizzBuzzService) Launch() {
 	log.Println("Service http service...")
 	http.ListenAndServe(fmt.Sprintf(":%d", 8080), applyCORS(service.routes()))
 }
 
+// VersionRoute is a http request handling function which return the version of the service
 func (service *FizzBuzzService) VersionRoute(resp http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case "GET":
@@ -76,6 +82,7 @@ func (service *FizzBuzzService) VersionRoute(resp http.ResponseWriter, req *http
 	}
 }
 
+// FizzBuzzRoute is a http request handling function which return the result of the FizzBuzz function
 func (service *FizzBuzzService) FizzBuzzRoute(resp http.ResponseWriter, req *http.Request) {
 	query := req.URL.Query()
 	to, multiple1, multiple2, word1, word2, err := parseFizzBuzzRouteQueryParam(query)

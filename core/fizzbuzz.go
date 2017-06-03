@@ -2,6 +2,7 @@ package core
 
 import "fmt"
 
+// FizzBuzzParams contain all the required params for FizzBuzz function
 type FizzBuzzParams struct {
 	From      int
 	To        int
@@ -11,6 +12,11 @@ type FizzBuzzParams struct {
 	S2        string
 }
 
+// FizzBuzz function
+// return a list of strings with numbers from [from] to [to], where:
+//  - all multiples of [multiple1] are replaced by [s1],
+//  - all multiples of [multiple2] are replaced by [s2],
+//  - all multiples of [multiple1] and [multiple2] are replaced by [s1][s2]
 func FizzBuzz(from, to, multiple1, multiple2 int, s1, s2 string) ([]string, error) {
 	if from > to {
 		return nil, fmt.Errorf("from can't be greater than to (%d > %d)", from, to)
