@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"github.com/platelk/fizzbuzz-api/core"
+	"strconv"
+	"net/url"
 )
 
 // HttpService define basic possible interaction for all HttpService
@@ -62,9 +64,19 @@ func (service *FizzBuzzService) VersionRoute(resp http.ResponseWriter, req *http
 }
 
 func (service *FizzBuzzService) FizzBuzzRoute(resp http.ResponseWriter, req *http.Request) {
+	query := req.URL.Query()
+	to, multiple1, multiple2, word1, word2, err := parseFizzBuzzRouteQueryParam(query)
+
+	if err != nil {
+		resp.WriteHeader(http.StatusNotAcceptable)
+		data, _ := MessageToJson(CreateErrorMessage("invalid argument", err.Error()))
+		resp.Write(data)
+		return
+	}
+
 	switch req.Method {
 	case "GET":
-		respond, err := core.FizzBuzz(1, 30, 3, 5, "fizz", "buzz")
+		respond, err := core.FizzBuzz(1, to, multiple1, multiple2, word1, word2)
 		if err != nil {
 			resp.WriteHeader(http.StatusNotAcceptable)
 			data, _ := MessageToJson(CreateErrorMessage("invalid argument", err.Error()))
@@ -87,4 +99,30 @@ func (service *FizzBuzzService) FizzBuzzRoute(resp http.ResponseWriter, req *htt
 		resp.WriteHeader(http.StatusMethodNotAllowed)
 		resp.Write(data)
 	}
+}
+
+func parseFizzBuzzRouteQueryParam(values url.Values) (int, int, int, string, string, error) {
+
+	to, err := strconv.Atoi(values.Get("to"))
+	if err != nil {
+		return 0, 0, 0, "", "", fmt.Errorf("One argument is missing or wrong format. you need to provide: to (int), mul1 (int), mul2 (int), word1 (string), word2 (string)")
+	}
+	multiple1, err := strconv.Atoi(values.Get("mul1"))
+	if err != nil {
+		return 0, 0, 0, "", "", fmt.Errorf("One argument is missing or wrong format. you need to provide: to (int), mul1 (int), mul2 (int), word1 (string), word2 (string)")
+	}
+	multiple2, err := strconv.Atoi(values.Get("mul2"))
+	if err != nil {
+		return 0, 0, 0, "", "", fmt.Errorf("One argument is missing or wrong format. you need to provide: to (int), mul1 (int), mul2 (int), word1 (string), word2 (string)")
+	}
+	word1 := values.Get("word1")
+	if len(word1) == 0 {
+		return 0, 0, 0, "", "", fmt.Errorf("One argument is missing or wrong format. you need to provide: to (int), mul1 (int), mul2 (int), word1 (string), word2 (string)")
+	}
+	word2 := values.Get("word2")
+	if len(word2) == 0 {
+		return 0, 0, 0, "", "", fmt.Errorf("One argument is missing or wrong format. you need to provide: to (int), mul1 (int), mul2 (int), word1 (string), word2 (string)")
+	}
+
+	return to, multiple1, multiple2, word1, word2, nil
 }
