@@ -6,7 +6,6 @@ const StatusOk = "OK"
 const StatusKo = "KO"
 
 type Message interface {
-	GetBytesResp() ([]byte, error)
 }
 
 type DefaultMessage struct {
@@ -24,7 +23,7 @@ type VersionMessage struct {
 	Version string `json:"version"`
 }
 
-func (msg *DefaultMessage) GetBytesResp() ([]byte, error) {
+func MessageToJson(msg interface{}) ([]byte, error) {
 	data, err := json.Marshal(msg)
 	if err != nil {
 		return nil, err

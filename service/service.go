@@ -40,18 +40,18 @@ func (service *FizzBuzzService) Launch() {
 func (service *FizzBuzzService) VersionRoute(resp http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case "GET":
-		data, err := CreateVersionMessage(service.version).GetBytesResp()
+		data, err := MessageToJson(CreateVersionMessage(service.version))
 		if err != nil {
 			resp.WriteHeader(http.StatusInternalServerError)
-			data, err = CreateErrorMessage("serialization error", "Error during json serialization.").GetBytesResp()
+			data, err = MessageToJson(CreateErrorMessage("serialization error", "Error during json serialization."))
 			resp.Write(data)
 		}
 		resp.Write(data)
 	default:
-		data, err := CreateErrorMessage("wrong method", "/version route only accept GET method.").GetBytesResp()
+		data, err := MessageToJson(CreateErrorMessage("wrong method", "/version route only accept GET method."))
 		if err != nil {
 			resp.WriteHeader(http.StatusInternalServerError)
-			data, err = CreateErrorMessage("serialization error", "Error during json serialization.").GetBytesResp()
+			data, err = MessageToJson(CreateErrorMessage("serialization error", "Error during json serialization."))
 			resp.Write(data)
 		}
 		resp.WriteHeader(http.StatusMethodNotAllowed)
