@@ -16,4 +16,5 @@ glide.lock
 
 fizzbuzz-api
 
+vendor/
 .idea/
