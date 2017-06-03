@@ -4,10 +4,15 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"github.com/platelk/fizzbuzz-api/core"
-	"strconv"
 	"net/url"
+	"strconv"
+
+	"github.com/bluele/gcache"
+	"github.com/platelk/fizzbuzz-api/core"
 )
+
+const FizzBuzzRespCacheSize = 5000
+const Version = "0.0.1"
 
 // HttpService define basic possible interaction for all HttpService
 type HttpService interface {
@@ -16,13 +21,21 @@ type HttpService interface {
 
 // FizzBuzzService is a HttpService which
 type FizzBuzzService struct {
-	httpClient *http.ServeMux
-	version    string
+	httpClient         *http.ServeMux
+	version            string
+	fizzBuzzRouteCache gcache.Cache
 }
 
 func CreateFizzBuzzService() HttpService {
 	return &FizzBuzzService{
-		version: "0.0.1",
+		version: Version,
+		fizzBuzzRouteCache: gcache.
+			New(FizzBuzzRespCacheSize).
+			LRU().LoaderFunc(func(key interface{}) (interface{}, error) {
+				params := key.(core.FizzBuzzParams)
+				return core.FizzBuzz(params.From, params.To, params.Multiple1, params.Multiple2, params.S1, params.S2)
+			}).
+			Build(),
 	}
 }
 
@@ -76,13 +89,13 @@ func (service *FizzBuzzService) FizzBuzzRoute(resp http.ResponseWriter, req *htt
 
 	switch req.Method {
 	case "GET":
-		respond, err := core.FizzBuzz(1, to, multiple1, multiple2, word1, word2)
+		respond, err := service.fizzBuzzRouteCache.Get(core.FizzBuzzParams{1, to, multiple1, multiple2, word1, word2})
 		if err != nil {
 			resp.WriteHeader(http.StatusNotAcceptable)
 			data, _ := MessageToJson(CreateErrorMessage("invalid argument", err.Error()))
 			resp.Write(data)
 		}
-		data, err := MessageToJson(CreateFizzBuzzMessage(respond))
+		data, err := MessageToJson(CreateFizzBuzzMessage(respond.([]string)))
 		if err != nil {
 			resp.WriteHeader(http.StatusInternalServerError)
 			data, err = MessageToJson(CreateErrorMessage("serialization error", "Error during json serialization."))

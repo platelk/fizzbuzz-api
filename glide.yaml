@@ -1,6 +1,6 @@
 package: github.com/platelk/fizzbuzz-api
-licence: MIT
 owners:
 - name: PLATEL Kevin
   email: platel.kevin@gmail.com
-import: []
+import:
+- package: github.com/bluele/gcache
