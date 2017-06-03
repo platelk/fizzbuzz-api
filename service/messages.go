@@ -1,6 +1,8 @@
 package service
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 const StatusOk = "OK"
 const StatusKo = "KO"
@@ -23,6 +25,11 @@ type VersionMessage struct {
 	Version string `json:"version"`
 }
 
+type FizzBuzzMessage struct {
+	DefaultMessage
+	Response []string
+}
+
 func MessageToJson(msg interface{}) ([]byte, error) {
 	data, err := json.Marshal(msg)
 	if err != nil {
@@ -37,4 +44,8 @@ func CreateVersionMessage(version string) Message {
 
 func CreateErrorMessage(status, message string) Message {
 	return &ErrorMessage{DefaultMessage{status, StatusKo}, message}
+}
+
+func CreateFizzBuzzMessage(response []string) Message {
+	return &FizzBuzzMessage{DefaultMessage{"", StatusOk}, response}
 }
