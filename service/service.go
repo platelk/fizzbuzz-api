@@ -2,7 +2,6 @@ package service
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -13,36 +12,41 @@ import (
 
 // FizzBuzzRespCacheSize represent the number of response that will be cached
 const FizzBuzzRespCacheSize = 5000
+
 // Version is a string representation of the service version
 const Version = "0.0.1"
 
 // HttpService define basic possible interaction for all HttpService
 type HttpService interface {
 	// Launch the service
-	Launch()
+	GetHandler() http.Handler
+	Version() string
 }
 
 // FizzBuzzService is a HttpService which
 type FizzBuzzService struct {
 	httpClient         *http.ServeMux
 	version            string
-	port               uint16
 	fizzBuzzRouteCache gcache.Cache
 }
 
 // CreateFizzBuzzService initialize a new FizzBuzzService
-func CreateFizzBuzzService(port uint16) HttpService {
+func CreateFizzBuzzService() HttpService {
 	return &FizzBuzzService{
 		version: Version,
-		port: port,
 		fizzBuzzRouteCache: gcache.
-			New(FizzBuzzRespCacheSize).
+		New(FizzBuzzRespCacheSize).
 			LRU().LoaderFunc(func(key interface{}) (interface{}, error) {
-				params := key.(core.FizzBuzzParams)
-				return core.FizzBuzz(params.From, params.To, params.Multiple1, params.Multiple2, params.S1, params.S2)
-			}).
+			params := key.(core.FizzBuzzParams)
+			return core.FizzBuzz(params.From, params.To, params.Multiple1, params.Multiple2, params.S1, params.S2)
+		}).
 			Build(),
 	}
+}
+
+// Version return the current service version in string format
+func (service *FizzBuzzService) Version() string {
+	return service.version
 }
 
 // routes will setup all the available route
@@ -56,9 +60,8 @@ func (service *FizzBuzzService) routes() http.Handler {
 }
 
 // Launch FizzBuzz service
-func (service *FizzBuzzService) Launch() {
-	log.Printf("Listening on %d...\n", service.port)
-	http.ListenAndServe(fmt.Sprintf(":%d", service.port), applyCORS(service.routes()))
+func (service *FizzBuzzService) GetHandler() http.Handler {
+	return applyCORS(service.routes())
 }
 
 // VersionRoute is a http request handling function which return the version of the service

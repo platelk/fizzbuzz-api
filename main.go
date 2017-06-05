@@ -7,6 +7,8 @@ import (
 	"strconv"
 
 	"github.com/platelk/fizzbuzz-api/service"
+	"net/http"
+	"fmt"
 )
 
 const AppName = "FizzBuzz"
@@ -39,7 +41,8 @@ func main() {
 	log.Printf("Running %s httpService...", AppName)
 	params := parseParams()
 	log.Println("Create service...")
-	httpService := service.CreateFizzBuzzService(params.Port)
+	httpService := service.CreateFizzBuzzService()
 	log.Println("Launch service...")
-	httpService.Launch()
+	log.Println("Listening on %d", params.Port)
+	http.ListenAndServe(fmt.Sprintf(":%d", params.Port), httpService.GetHandler())
 }
