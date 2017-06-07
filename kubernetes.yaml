@@ -23,7 +23,7 @@ kind: Service
 metadata:
   labels:
     kubernetes.io/name: fizzbuzz
-    name: fizzbuzz
+  name: fizzbuzz
 spec:
   ports:
   - port: 8080
