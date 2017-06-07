@@ -26,6 +26,7 @@ func FizzBuzz(from, to, multiple1, multiple2 int, s1, s2 string) ([]string, erro
 	}
 
 	resp := make([]string, to-from+1)
+
 	for i := 0; from <= to; from++ {
 		tmp := ""
 		if from%multiple1 == 0 {
